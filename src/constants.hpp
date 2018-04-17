@@ -1,3 +1,5 @@
+#ifndef __CONSTANTS_INCLUDED__
+#define __CONSTANTS_INCLUDED__
 
 #define GPIO4 4
 #define GPIO5 5
@@ -20,3 +22,5 @@
 
 //TODO: add more constants here
 //TODO: add implementations for all constants above
+
+#endif

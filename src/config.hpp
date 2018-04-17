@@ -1,3 +1,6 @@
+#ifndef __CONFIG_INCLUDED__
+#define __CONFIG_INCLUDED__
+
 #include <constants.hpp>
 
 #define wifi_ssid "<SSID>"
@@ -46,3 +49,6 @@
 //#define SETUP_GPI12_CONTROL GATE_BOTH
 //#define SETUP_GPI14_INPUT CONTROL_PULSE_BUTTON
 //#define SETUP_GPI14_CONTROL GATE_BOTH
+
+
+#endif

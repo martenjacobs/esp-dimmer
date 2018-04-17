@@ -1,14 +1,6 @@
-#include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <ArduinoOTA.h>
-#include <PubSubClient.h>
-#include <boardiface.hpp>
 #include <config.hpp>
+#include <Arduino.h>
 
-IPAddress localIP;
-
-WiFiClient espClient;
-PubSubClient client(espClient);
 
 #if ENABLE_OTA==1
 void setup_ota();

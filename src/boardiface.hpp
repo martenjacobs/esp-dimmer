@@ -1,3 +1,6 @@
+#ifndef __BOARDIFACE_INCLUDED__
+#define __BOARDIFACE_INCLUDED__
+
 #include <Arduino.h>
 
 #define GATE_1_ON    0x20
@@ -42,3 +45,5 @@ int set_gate2(int val);
 int get_gate1();
 int get_gate2();
 void get_values(void);
+
+#endif
