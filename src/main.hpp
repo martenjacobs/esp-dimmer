@@ -5,11 +5,6 @@
 #include <Arduino.h>
 
 
-#if ENABLE_OTA==1
-void setup_ota();
-#endif
-void setup_wifi();
-
 #if ENABLE_GATE_1==1
 void publish_gate1();
 #endif

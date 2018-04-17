@@ -1,8 +1,10 @@
 #include <main.hpp>
-#include <ESP8266WiFi.h>
-#include <ArduinoOTA.h>
 #include <PubSubClient.h>
 #include <boardiface.hpp>
+#include <wifi.hpp>
+#if ENABLE_OTA==1
+#include <ota.hpp>
+#endif
 
 //TODO: clean up this mess
 
@@ -12,85 +14,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 
-#if ENABLE_OTA
-void setup_ota() {
-  ArduinoOTA.onStart([]() {
-    String type;
-    if (ArduinoOTA.getCommand() == U_FLASH) {
-      type = "sketch";
-    } else { // U_SPIFFS
-      type = "filesystem";
-    }
 
-    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-    //Serial.println("Start updating " + type);
-  });
-  ArduinoOTA.onEnd([]() {
-    //Serial.println("\nEnd");
-  });
-  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    //Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-  });
-  ArduinoOTA.onError([](ota_error_t error) {
-    //Serial.printf("Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) {
-      //Serial.println("Auth Failed");
-    } else if (error == OTA_BEGIN_ERROR) {
-      //Serial.println("Begin Failed");
-    } else if (error == OTA_CONNECT_ERROR) {
-      //Serial.println("Connect Failed");
-    } else if (error == OTA_RECEIVE_ERROR) {
-      //Serial.println("Receive Failed");
-    } else if (error == OTA_END_ERROR) {
-      //Serial.println("End Failed");
-    }
-  });
-  ArduinoOTA.begin();
-}
-#endif
-
-void setup_wifi() {
-  delay(10);
-  // We start by connecting to a WiFi network
-  //Serial.println();
-  //Serial.print("Connecting to ");
-  //Serial.println(wifi_ssid);
-
-  //WiFi.setPhyMode(WIFI_PHY_MODE_11G);
-  //WiFi.setOutputPower(10*4.0f);
-  WiFi.mode(WIFI_STA);
-
-  WiFi.begin(wifi_ssid, wifi_password);
-  boolean success=false;
-  for(int i=0; i<(wifi_wait_sec*2) ; i++){
-    if(WiFi.status() == WL_CONNECTED){
-      success=true;
-      break;
-    }
-    delay(500);
-    //Serial.print(".");
-  }
-  if(!success){
-    //Serial.println("Failed to connect");
-    //Serial.print("Setting up softAP");
-    WiFi.disconnect();
-    WiFi.mode(WIFI_AP);
-    WiFi.softAPConfig(ap_ip, ap_gw, ap_sn);
-    WiFi.softAP(ap_ssid, ap_psk);
-    //Serial.println("Setting up OTA");
-    setup_ota();
-    //Serial.println("Waiting for OTA update");
-    while(true){
-      ArduinoOTA.handle();
-      yield();
-    }
-  }
-  //Serial.println("");
-  //Serial.println("WiFi connected");
-  //Serial.print("IP address: ");
-  localIP = WiFi.localIP();
-  //Serial.println(localIP);
-}
 
 void publish_gate1(){
   client.publish(mqtt_pub_topic_gate1, get_gate1()==1?"ON":"OFF", true);
@@ -293,10 +217,12 @@ void mqtt_loop(){
 
 void setup() {
   //Serial.begin(115200);
-  setup_wifi();
+  if(!setup_wifi())
+    ota_wait();
+  localIP=WiFi.localIP();
   setup_ota();
   for(int i=0 ; i < 50 ; i++){
-    ArduinoOTA.handle();
+    ota_loop();
     delay(100);
   }
   client.setServer(mqtt_server, mqtt_port);
@@ -310,7 +236,7 @@ void setup() {
 }
 
 void loop() {
-  ArduinoOTA.handle();
+  ota_loop();
   board_loop();
   now=millis();
   mqtt_loop();
