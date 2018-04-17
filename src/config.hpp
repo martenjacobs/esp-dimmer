@@ -2,6 +2,14 @@
 
 #define wifi_ssid "<SSID>"
 #define wifi_password "<KEY>"
+#define wifi_wait_sec 10
+
+#define ap_ssid "esp-dimmer-1"
+#define ap_psk ""
+#define ap_ip IPAddress(192, 168, 43, 1)
+#define ap_gw IPAddress(192, 168, 43, 1)
+#define ap_sn IPAddress(255, 255, 255, 0)
+
 #define mqtt_server "<HOST>"
 #define mqtt_port <PORT>
 #define mqtt_user "<MQTT_USER>"
