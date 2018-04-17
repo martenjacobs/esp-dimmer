@@ -51,12 +51,30 @@ void setup_wifi() {
   WiFi.mode(WIFI_STA);
 
   WiFi.begin(wifi_ssid, wifi_password);
-
-  while (WiFi.status() != WL_CONNECTED) {
+  boolean success=false;
+  for(int i=0; i<(wifi_wait_sec*2) ; i++){
+    if(WiFi.status() == WL_CONNECTED){
+      success=true;
+      break;
+    }
     delay(500);
     //Serial.print(".");
   }
-
+  if(!success){
+    //Serial.println("Failed to connect");
+    //Serial.print("Setting up softAP");
+    WiFi.disconnect();
+    WiFi.mode(WIFI_AP);
+    WiFi.softAPConfig(ap_ip, ap_gw, ap_sn);
+    WiFi.softAP(ap_ssid, ap_psk);
+    //Serial.println("Setting up OTA");
+    setup_ota();
+    //Serial.println("Waiting for OTA update");
+    while(true){
+      ArduinoOTA.handle();
+      yield();
+    }
+  }
   //Serial.println("");
   //Serial.println("WiFi connected");
   //Serial.print("IP address: ");
