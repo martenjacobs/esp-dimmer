@@ -214,18 +214,21 @@ void mqtt_loop(){
   client.loop();
 }
 
+void mqtt_setup(){
+  client.setServer(mqtt_server, mqtt_port);
+}
 
 void setup() {
   //Serial.begin(115200);
-  if(!setup_wifi())
-    ota_wait();
-  localIP=WiFi.localIP();
-  setup_ota();
+  if(!wifi_setup())
+    ota_setup_and_wait();
+  ota_setup();
   for(int i=0 ; i < 50 ; i++){
     ota_loop();
     delay(100);
   }
-  client.setServer(mqtt_server, mqtt_port);
+  localIP=WiFi.localIP();
+  mqtt_setup();
   pinMode(4, INPUT_PULLUP);
   pinMode(5, INPUT_PULLUP);
   pinMode(13, OUTPUT);

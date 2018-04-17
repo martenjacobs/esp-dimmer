@@ -3,6 +3,6 @@
 
 #include <ESP8266WiFi.h>
 
-bool setup_wifi();
+bool wifi_setup();
 
 #endif

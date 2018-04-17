@@ -2,7 +2,7 @@
 #include <config.hpp>
 #include <wifi.hpp>
 
-bool setup_wifi() {
+bool wifi_setup() {
   delay(10);
   // We start by connecting to a WiFi network
   //Serial.println();

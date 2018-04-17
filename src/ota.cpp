@@ -3,7 +3,7 @@
 #include <ArduinoOTA.h>
 
 
-void setup_ota() {
+void ota_setup() {
   ArduinoOTA.onStart([]() {
     String type;
     if (ArduinoOTA.getCommand() == U_FLASH) {
@@ -40,9 +40,9 @@ void setup_ota() {
 void ota_loop(){
   ArduinoOTA.handle();
 }
-void ota_wait(){
+void ota_setup_and_wait(){
   //Serial.println("Setting up OTA");
-  setup_ota();
+  ota_setup();
   //Serial.println("Waiting for OTA update");
   unsigned long start_wait=millis();
   while(true){
