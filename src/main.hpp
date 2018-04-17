@@ -1,3 +1,6 @@
+#ifndef __MAIN_INCLUDED__
+#define __MAIN_INCLUDED__
+
 #include <config.hpp>
 #include <Arduino.h>
 
@@ -29,3 +32,5 @@ void gpio_loop();
 void publish_status();
 
 void mqtt_loop();
+
+#endif
