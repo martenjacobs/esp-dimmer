@@ -220,11 +220,13 @@ void mqtt_setup(){
 
 void setup() {
   //Serial.begin(115200);
-  if(!wifi_setup())
+  if(!wifi_setup()){
+    //TODO: Something if OTA is not enabled
     ota_setup_and_wait();
-  ota_setup();
+  }
+  OTA_SETUP_IF_ENABLED;
   for(int i=0 ; i < 50 ; i++){
-    ota_loop();
+    OTA_LOOP_IF_ENABLED;
     delay(100);
   }
   localIP=WiFi.localIP();
@@ -239,7 +241,7 @@ void setup() {
 }
 
 void loop() {
-  ota_loop();
+  OTA_LOOP_IF_ENABLED;
   board_loop();
   now=millis();
   mqtt_loop();
