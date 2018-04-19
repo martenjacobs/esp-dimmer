@@ -33,6 +33,7 @@
 #define mqtt_sub_topic_gate1 mqtt_namespace "gate1/set"
 #define mqtt_sub_topic_gate2 mqtt_namespace "gate2/set"
 
+#define INFO_PUBLISH_INTERVAL 300000
 
 
 #define ENABLE_OTA 1

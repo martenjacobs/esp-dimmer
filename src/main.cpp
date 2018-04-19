@@ -202,8 +202,28 @@ void gpio_loop(){
 }
 
 void publish_status(){
+
   client.publish(mqtt_pub_topic_ip, localIP.toString().c_str(), true);
   publish_gates();
+
+  Dimmer d = get_state();
+  char cstr[16];
+
+  client.publish(mqtt_pub_topic_state "/version_major", itoa(d.version_major, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/version_minor", itoa(d.version_minor, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/gate1_on", itoa(d.gate1_on, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/gate1_bright_proz", itoa(d.gate1_bright_proz, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/gate1_bright_tbl", itoa(d.gate1_bright_tbl, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/gate1_dimm", itoa(d.gate1_dimm, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/gate1_impuls_start", itoa(d.gate1_impuls_start, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/gate1_impuls_len", itoa(d.gate1_impuls_len, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/gate2_on", itoa(d.gate2_on, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/gate2_bright_proz", itoa(d.gate2_bright_proz, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/gate2_bright_tbl", itoa(d.gate2_bright_tbl, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/gate2_dimm", itoa(d.gate2_dimm, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/gate2_impuls_start", itoa(d.gate2_impuls_start, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/gate2_impuls_len", itoa(d.gate2_impuls_len, cstr, 10), false);
+  client.publish(mqtt_pub_topic_state "/gate_lock", itoa(d.gate_lock, cstr, 10), false);
 }
 
 void mqtt_loop(){
@@ -246,7 +266,7 @@ void loop() {
   now=millis();
   mqtt_loop();
   gpio_loop();
-  if(now-last_pub>300000){
+  if(now-last_pub>INFO_PUBLISH_INTERVAL){
     last_pub=millis();
     publish_status();
   }

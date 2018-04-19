@@ -5,27 +5,6 @@
 
 //SoftwareSerial dimSerial(10, 11); // Anschluß am Dimmermodul RX, TX
 
-typedef struct {
-    uint8_t   version_major       = 0;
-    uint8_t   version_minor       = 0;
-
-    uint8_t   gate1_on            = 0;
-    uint8_t   gate1_bright_proz   = 0;
-    uint8_t   gate1_bright_tbl    = 0;
-    uint8_t   gate1_dimm          = 0;
-    uint8_t   gate1_impuls_start  = 0;
-    uint32_t  gate1_impuls_len    = 0;
-
-    uint8_t   gate2_on            = 0;
-    uint8_t   gate2_bright_proz   = 0;
-    uint8_t   gate2_bright_tbl    = 0;
-    uint8_t   gate2_dimm          = 0;
-    uint8_t   gate2_impuls_start  = 0;
-    uint32_t  gate2_impuls_len    = 0;
-
-    uint8_t   gate_lock           = 0;
-} Dimmer;
-
 Dimmer dimmer;
 
 
@@ -400,4 +379,8 @@ void board_loop() { // run over and over
     get_values();
   }
 
+}
+
+Dimmer get_state(){
+  return dimmer;
 }
