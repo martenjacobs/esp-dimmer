@@ -83,9 +83,8 @@ void mqtt_reconnect() {
     }
   }
 }
-void mqtt_debug_log(char *msg){
-  client.publish(mqtt_pub_topic_log, msg, false);
-
+void mqtt_debug_log(String msg){
+  client.publish(mqtt_pub_topic_log, msg.c_str(), false);
 }
 
 unsigned long last_pub = 0;
@@ -135,6 +134,26 @@ int check_pulse_button(int id, int &last, const char *topic){
         #endif
         return SWITCH_TOGGLE;
       }
+    }
+  }
+  return SWITCH_NO_CHANGE;
+}
+int check_toggle_button(int id, int &last, const char *topic){
+  int curr=digitalRead(4);
+  if(curr!=last){
+    delay(10);
+    if(digitalRead(4)==curr){
+      last=curr;
+      if(curr){
+        #if ENABLE_MQTT
+        client.publish(topic, "HIGH", false);
+        #endif
+      }else{
+        #if ENABLE_MQTT
+        client.publish(topic, "LOW", false);
+        #endif
+      }
+      return SWITCH_TOGGLE;
     }
   }
   return SWITCH_NO_CHANGE;
