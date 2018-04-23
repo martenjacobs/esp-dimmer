@@ -66,6 +66,8 @@ void board_loop();
 void board_setup();
 int set_gate1(int val);
 int set_gate2(int val);
+void set_dimm1_tbl(byte value);
+void set_dimm2_tbl(byte value);
 int get_gate1();
 int get_gate2();
 void get_values(void);

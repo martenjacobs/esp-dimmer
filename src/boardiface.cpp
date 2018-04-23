@@ -288,6 +288,18 @@ void set_dimm1_tbl(byte value) {
 
   send_seriell(sendVal);
 }
+
+void set_dimm2_tbl(byte value) {
+
+  char sendVal[3];
+
+  sendVal[0] = DIMM_2_TBL;
+  sendVal[1] = value;
+  sendVal[2] = '\0';
+
+  send_seriell(sendVal);
+}
+
 //************************************************************************************
 void get_values(void) {
   //Serial.print("Get modul values\n");
