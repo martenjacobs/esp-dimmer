@@ -19,7 +19,7 @@ void set_gate(int id, int on);
 #if ENABLE_MQTT==1
 void mqtt_callback(char* topic, byte* payload, unsigned int length);
 void mqtt_reconnect();
-void mqtt_debug_log(char *msg);
+void mqtt_debug_log(String msg);
 #endif
 
 

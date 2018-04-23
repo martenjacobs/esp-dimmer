@@ -14,8 +14,6 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 
-
-
 void publish_gate1(){
   client.publish(mqtt_pub_topic_gate1, get_gate1()==1?"ON":"OFF", true);
 }
@@ -50,13 +48,25 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
 		payload_str[i] = (char) payload[i];
 	}
   payload_str[length]=0;
-
+  mqtt_debug_log("topic: " + (String)topic );
   if(strcmp(topic, mqtt_sub_topic_gate1) == 0){
     set_gate(1, strcmp(payload_str, "ON")==0?1:0);
     return;
   }
   if(strcmp(topic, mqtt_sub_topic_gate2) == 0){
     set_gate(2, strcmp(payload_str, "ON")==0?1:0);
+    return;
+  }
+  if(strcmp(topic, mqtt_sub_topic_dim1) == 0){
+    uint8_t val;
+    sscanf(payload_str, "%d", &val);
+    set_dimm1_tbl(val);
+    return;
+  }
+  if(strcmp(topic, mqtt_sub_topic_dim2) == 0){
+    uint8_t val;
+    sscanf(payload_str, "%d", &val);
+    set_dimm2_tbl(val);
     return;
   }
 }
@@ -72,6 +82,8 @@ void mqtt_reconnect() {
       client.publish(mqtt_pub_topic_online, "yes", true);
       client.subscribe(mqtt_sub_topic_gate1);
       client.subscribe(mqtt_sub_topic_gate2);
+      client.subscribe(mqtt_sub_topic_dim1);
+      client.subscribe(mqtt_sub_topic_dim2);
       client.setCallback(mqtt_callback);
       //Serial.println("connected");
     } else {
@@ -83,9 +95,8 @@ void mqtt_reconnect() {
     }
   }
 }
-void mqtt_debug_log(char *msg){
-  client.publish(mqtt_pub_topic_log, msg, false);
-
+void mqtt_debug_log(String msg){
+  client.publish(mqtt_pub_topic_log, msg.c_str(), false);
 }
 
 unsigned long last_pub = 0;
@@ -135,6 +146,26 @@ int check_pulse_button(int id, int &last, const char *topic){
         #endif
         return SWITCH_TOGGLE;
       }
+    }
+  }
+  return SWITCH_NO_CHANGE;
+}
+int check_toggle_button(int id, int &last, const char *topic){
+  int curr=digitalRead(4);
+  if(curr!=last){
+    delay(10);
+    if(digitalRead(4)==curr){
+      last=curr;
+      if(curr){
+        #if ENABLE_MQTT
+        client.publish(topic, "HIGH", false);
+        #endif
+      }else{
+        #if ENABLE_MQTT
+        client.publish(topic, "LOW", false);
+        #endif
+      }
+      return SWITCH_TOGGLE;
     }
   }
   return SWITCH_NO_CHANGE;
