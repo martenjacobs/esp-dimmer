@@ -37,6 +37,8 @@
 #define mqtt_pub_topic_dim2 mqtt_namespace "dim2/state"
 #define mqtt_sub_topic_dim1 mqtt_namespace "dim1/set"
 #define mqtt_sub_topic_dim2 mqtt_namespace "dim2/set"
+#define mqtt_sub_topic_eeprom_read mqtt_namespace "eeprom/read"
+#define mqtt_sub_topic_eeprom_write mqtt_namespace "eeprom/write"
 
 #define INFO_PUBLISH_INTERVAL 300000
 

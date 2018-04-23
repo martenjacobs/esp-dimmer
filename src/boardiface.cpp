@@ -378,6 +378,27 @@ int set_gate2(int value) {
   send_seriell(sendVal);
   return 1;
 }
+
+void set_channel_lock(bool on){
+  //TODO: implement, but how?
+}
+void write_eeprom(){
+  //TODO: test
+  char value[3];
+  value[0] = WRITE_EE;
+  value[1] = '\0';
+
+  send_seriell(value);
+}
+void read_eeprom(){
+  //TODO: test
+  char value[3];
+  value[0] = READ_EE;
+  value[1] = '\0';
+
+  send_seriell(value);
+}
+
 //************************************************************************************
 void board_setup() {
   // Dimmer Port

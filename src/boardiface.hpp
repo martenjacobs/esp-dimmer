@@ -74,4 +74,8 @@ uint8_t get_dim1();
 uint8_t get_dim2();
 void get_values(void);
 
+void set_channel_lock(bool on);
+void write_eeprom();
+void read_eeprom();
+
 #endif

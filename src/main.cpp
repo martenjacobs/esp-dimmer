@@ -94,6 +94,16 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
     publish_status();
     return;
   }
+  if(strcmp(topic, mqtt_sub_topic_eeprom_read) == 0){
+    read_eeprom();
+    get_values();
+    publish_status();
+    return;
+  }
+  if(strcmp(topic, mqtt_sub_topic_eeprom_write) == 0){
+    write_eeprom();
+    return;
+  }
 }
 void mqtt_reconnect() {
   // Loop until we're reconnected
@@ -110,6 +120,8 @@ void mqtt_reconnect() {
       client.subscribe(mqtt_sub_topic_dim1);
       client.subscribe(mqtt_sub_topic_dim2);
       client.subscribe(mqtt_sub_topic_state);
+      client.subscribe(mqtt_sub_topic_eeprom_read);
+      client.subscribe(mqtt_sub_topic_eeprom_write);
       client.setCallback(mqtt_callback);
       //Serial.println("connected");
     } else {
