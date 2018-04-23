@@ -89,6 +89,11 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
     set_dim(2, val);
     return;
   }
+  if(strcmp(topic, mqtt_sub_topic_state) == 0){
+    get_values();
+    publish_status();
+    return;
+  }
 }
 void mqtt_reconnect() {
   // Loop until we're reconnected
@@ -104,6 +109,7 @@ void mqtt_reconnect() {
       client.subscribe(mqtt_sub_topic_gate2);
       client.subscribe(mqtt_sub_topic_dim1);
       client.subscribe(mqtt_sub_topic_dim2);
+      client.subscribe(mqtt_sub_topic_state);
       client.setCallback(mqtt_callback);
       //Serial.println("connected");
     } else {

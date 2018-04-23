@@ -285,8 +285,12 @@ void set_dimm1_tbl(uint8_t value) {
   sendVal[0] = DIMM_1_TBL;
   sendVal[1] = value;
   sendVal[2] = '\0';
-  dimmer.gate1_bright_tbl = value;
   send_seriell(sendVal);
+  dimmer.gate1_bright_tbl = value;
+  if(value == 0){
+    // if dim level is 0, attiny switches off gate
+    dimmer.gate1_on = 0;
+  }
 }
 uint8_t get_dim1(){
   return dimmer.gate1_bright_tbl;
@@ -299,8 +303,12 @@ void set_dimm2_tbl(uint8_t value) {
   sendVal[0] = DIMM_2_TBL;
   sendVal[1] = value;
   sendVal[2] = '\0';
-  dimmer.gate2_bright_tbl = value;
   send_seriell(sendVal);
+  dimmer.gate2_bright_tbl = value;
+  if(value == 0){
+    // if dim level is 0, attiny switches off gate
+    dimmer.gate2_on = 0;
+  }
 }
 uint8_t get_dim2(){
   return dimmer.gate2_bright_tbl;

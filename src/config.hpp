@@ -23,6 +23,7 @@
 #define mqtt_pub_topic_ip mqtt_namespace "ip-address"
 #define mqtt_pub_topic_log mqtt_namespace "log"
 #define mqtt_pub_topic_state mqtt_namespace "state"
+#define mqtt_sub_topic_state mqtt_namespace "state/request"
 #define mqtt_pub_topic_online mqtt_namespace "online"
 #define mqtt_pub_topic_gpio4 mqtt_namespace "gpio4"
 #define mqtt_pub_topic_gpio5 mqtt_namespace "gpio5"
