@@ -19,7 +19,7 @@
 #define mqtt_password "<MQTT_PASSWORD>"
 #define mqtt_client_id "<UNIQUE_CLIENT_ID>"
 
-#define mqtt_namespace mqtt_client_id "dimmer-1/"
+#define mqtt_namespace mqtt_client_id "/"
 #define mqtt_pub_topic_ip mqtt_namespace "ip-address"
 #define mqtt_pub_topic_log mqtt_namespace "log"
 #define mqtt_pub_topic_state mqtt_namespace "state"
