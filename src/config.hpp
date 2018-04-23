@@ -32,6 +32,8 @@
 #define mqtt_pub_topic_gate2 mqtt_namespace "gate2/state"
 #define mqtt_sub_topic_gate1 mqtt_namespace "gate1/set"
 #define mqtt_sub_topic_gate2 mqtt_namespace "gate2/set"
+#define mqtt_pub_topic_dim1 mqtt_namespace "dim1/state"
+#define mqtt_pub_topic_dim2 mqtt_namespace "dim2/state"
 #define mqtt_sub_topic_dim1 mqtt_namespace "dim1/set"
 #define mqtt_sub_topic_dim2 mqtt_namespace "dim2/set"
 

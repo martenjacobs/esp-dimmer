@@ -115,11 +115,11 @@ void serialData(byte len_Of_Payload) {
             dimmer.gate1_on = payload[3];
             dimmer.gate1_dimm = payload[4];
             dimmer.gate1_bright_tbl = payload[5];
-            dimmer.gate1_bright_proz = (uint8_t)((dimmer.gate1_bright_tbl * 100) / 255) + 0.5;
+            //dimmer.gate1_bright_proz = (uint8_t)((dimmer.gate1_bright_tbl * 100) / 255) + 0.5;
             dimmer.gate2_on = payload[6];
             dimmer.gate2_dimm = payload[7];
             dimmer.gate2_bright_tbl = payload[8];
-            dimmer.gate2_bright_proz = (uint8_t)((dimmer.gate2_bright_tbl * 100) / 255) + 0.5;
+            //dimmer.gate2_bright_proz = (uint8_t)((dimmer.gate2_bright_tbl * 100) / 255) + 0.5;
             dimmer.gate_lock = payload[9];
         }
         else {
@@ -132,8 +132,8 @@ void serialData(byte len_Of_Payload) {
             dimmer.gate2_dimm = payload[5] - 48;
             dimmer.gate_lock = payload[7] - 48;
 
-            dimmer.gate1_bright_proz = (uint8_t)((dimmer.gate1_bright_tbl * 100) / 255) + 0.5;
-            dimmer.gate2_bright_proz = (uint8_t)((dimmer.gate2_bright_tbl * 100) / 255) + 0.5;
+            //dimmer.gate1_bright_proz = (uint8_t)((dimmer.gate1_bright_tbl * 100) / 255) + 0.5;
+            //dimmer.gate2_bright_proz = (uint8_t)((dimmer.gate2_bright_tbl * 100) / 255) + 0.5;
         }
 
         break;
@@ -278,26 +278,32 @@ int send_seriell(const char *value) {
 
 // Beispiel
 //************************************************************************************
-void set_dimm1_tbl(byte value) {
+void set_dimm1_tbl(uint8_t value) {
 
   char sendVal[3];
 
   sendVal[0] = DIMM_1_TBL;
   sendVal[1] = value;
   sendVal[2] = '\0';
-
+  dimmer.gate1_bright_tbl = value;
   send_seriell(sendVal);
 }
+uint8_t get_dim1(){
+  return dimmer.gate1_bright_tbl;
+}
 
-void set_dimm2_tbl(byte value) {
+void set_dimm2_tbl(uint8_t value) {
 
   char sendVal[3];
 
   sendVal[0] = DIMM_2_TBL;
   sendVal[1] = value;
   sendVal[2] = '\0';
-
+  dimmer.gate2_bright_tbl = value;
   send_seriell(sendVal);
+}
+uint8_t get_dim2(){
+  return dimmer.gate2_bright_tbl;
 }
 
 //************************************************************************************

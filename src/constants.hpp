@@ -8,7 +8,6 @@
 
 #define CONTROL_PULSE_BUTTON 0
 #define CONTROL_TOGGLE_BUTTON 1
-#define CONTROL_MOTION_SENSOR 2
 
 #define GATE_BOTH 0
 #define GATE_1 1

@@ -16,9 +16,13 @@ PubSubClient client(espClient);
 
 void publish_gate1(){
   client.publish(mqtt_pub_topic_gate1, get_gate1()==1?"ON":"OFF", true);
+  char cstr[16];
+  client.publish(mqtt_pub_topic_dim1, itoa(get_dim1(), cstr, 10), true);
 }
 void publish_gate2(){
   client.publish(mqtt_pub_topic_gate2, get_gate2()==1?"ON":"OFF", true);
+  char cstr[16];
+  client.publish(mqtt_pub_topic_dim2, itoa(get_dim2(), cstr, 10), true);
 }
 void publish_gates(){
   publish_gate1();
@@ -41,6 +45,22 @@ void set_gate(int id, int on){
       break;
   }
 }
+void set_dim(int id, uint8_t value){
+  switch(id){
+    case 1:
+      set_dimm1_tbl(value);
+      #if ENABLE_MQTT
+      publish_gate1();
+      #endif
+      break;
+    case 2:
+      set_dimm2_tbl(value);
+      #if ENABLE_MQTT
+      publish_gate2();
+      #endif
+      break;
+  }
+}
 
 void mqtt_callback(char* topic, byte* payload, unsigned int length){
 	char payload_str[length+1];
@@ -48,7 +68,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
 		payload_str[i] = (char) payload[i];
 	}
   payload_str[length]=0;
-  mqtt_debug_log("topic: " + (String)topic );
+
   if(strcmp(topic, mqtt_sub_topic_gate1) == 0){
     set_gate(1, strcmp(payload_str, "ON")==0?1:0);
     return;
@@ -60,13 +80,13 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
   if(strcmp(topic, mqtt_sub_topic_dim1) == 0){
     uint8_t val;
     sscanf(payload_str, "%d", &val);
-    set_dimm1_tbl(val);
+    set_dim(1, val);
     return;
   }
   if(strcmp(topic, mqtt_sub_topic_dim2) == 0){
     uint8_t val;
     sscanf(payload_str, "%d", &val);
-    set_dimm2_tbl(val);
+    set_dim(2, val);
     return;
   }
 }
@@ -243,13 +263,13 @@ void publish_status(){
   client.publish(mqtt_pub_topic_state "/version_major", itoa(d.version_major, cstr, 10), false);
   client.publish(mqtt_pub_topic_state "/version_minor", itoa(d.version_minor, cstr, 10), false);
   client.publish(mqtt_pub_topic_state "/gate1_on", itoa(d.gate1_on, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/gate1_bright_proz", itoa(d.gate1_bright_proz, cstr, 10), false);
+  //client.publish(mqtt_pub_topic_state "/gate1_bright_proz", itoa(d.gate1_bright_proz, cstr, 10), false);
   client.publish(mqtt_pub_topic_state "/gate1_bright_tbl", itoa(d.gate1_bright_tbl, cstr, 10), false);
   client.publish(mqtt_pub_topic_state "/gate1_dimm", itoa(d.gate1_dimm, cstr, 10), false);
   client.publish(mqtt_pub_topic_state "/gate1_impuls_start", itoa(d.gate1_impuls_start, cstr, 10), false);
   client.publish(mqtt_pub_topic_state "/gate1_impuls_len", itoa(d.gate1_impuls_len, cstr, 10), false);
   client.publish(mqtt_pub_topic_state "/gate2_on", itoa(d.gate2_on, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/gate2_bright_proz", itoa(d.gate2_bright_proz, cstr, 10), false);
+  //client.publish(mqtt_pub_topic_state "/gate2_bright_proz", itoa(d.gate2_bright_proz, cstr, 10), false);
   client.publish(mqtt_pub_topic_state "/gate2_bright_tbl", itoa(d.gate2_bright_tbl, cstr, 10), false);
   client.publish(mqtt_pub_topic_state "/gate2_dimm", itoa(d.gate2_dimm, cstr, 10), false);
   client.publish(mqtt_pub_topic_state "/gate2_impuls_start", itoa(d.gate2_impuls_start, cstr, 10), false);

@@ -44,14 +44,14 @@ typedef struct {
     uint8_t   version_minor       = 0;
 
     uint8_t   gate1_on            = 0;
-    uint8_t   gate1_bright_proz   = 0;
+//    uint8_t   gate1_bright_proz   = 0;
     uint8_t   gate1_bright_tbl    = 0;
     uint8_t   gate1_dimm          = 0;
     uint8_t   gate1_impuls_start  = 0;
     uint32_t  gate1_impuls_len    = 0;
 
     uint8_t   gate2_on            = 0;
-    uint8_t   gate2_bright_proz   = 0;
+//    uint8_t   gate2_bright_proz   = 0;
     uint8_t   gate2_bright_tbl    = 0;
     uint8_t   gate2_dimm          = 0;
     uint8_t   gate2_impuls_start  = 0;
@@ -66,10 +66,12 @@ void board_loop();
 void board_setup();
 int set_gate1(int val);
 int set_gate2(int val);
-void set_dimm1_tbl(byte value);
-void set_dimm2_tbl(byte value);
 int get_gate1();
 int get_gate2();
+void set_dimm1_tbl(uint8_t value);
+void set_dimm2_tbl(uint8_t value);
+uint8_t get_dim1();
+uint8_t get_dim2();
 void get_values(void);
 
 #endif
