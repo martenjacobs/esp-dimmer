@@ -14,8 +14,6 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 
-
-
 void publish_gate1(){
   client.publish(mqtt_pub_topic_gate1, get_gate1()==1?"ON":"OFF", true);
 }
@@ -50,13 +48,25 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
 		payload_str[i] = (char) payload[i];
 	}
   payload_str[length]=0;
-
+  mqtt_debug_log("topic: " + (String)topic );
   if(strcmp(topic, mqtt_sub_topic_gate1) == 0){
     set_gate(1, strcmp(payload_str, "ON")==0?1:0);
     return;
   }
   if(strcmp(topic, mqtt_sub_topic_gate2) == 0){
     set_gate(2, strcmp(payload_str, "ON")==0?1:0);
+    return;
+  }
+  if(strcmp(topic, mqtt_sub_topic_dim1) == 0){
+    uint8_t val;
+    sscanf(payload_str, "%d", &val);
+    set_dimm1_tbl(val);
+    return;
+  }
+  if(strcmp(topic, mqtt_sub_topic_dim2) == 0){
+    uint8_t val;
+    sscanf(payload_str, "%d", &val);
+    set_dimm2_tbl(val);
     return;
   }
 }
@@ -72,6 +82,8 @@ void mqtt_reconnect() {
       client.publish(mqtt_pub_topic_online, "yes", true);
       client.subscribe(mqtt_sub_topic_gate1);
       client.subscribe(mqtt_sub_topic_gate2);
+      client.subscribe(mqtt_sub_topic_dim1);
+      client.subscribe(mqtt_sub_topic_dim2);
       client.setCallback(mqtt_callback);
       //Serial.println("connected");
     } else {

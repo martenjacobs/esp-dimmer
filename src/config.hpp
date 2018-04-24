@@ -19,7 +19,7 @@
 #define mqtt_password "<MQTT_PASSWORD>"
 #define mqtt_client_id "<UNIQUE_CLIENT_ID>"
 
-#define mqtt_namespace mqtt_client_id "/"
+#define mqtt_namespace mqtt_client_id "dimmer-1/"
 #define mqtt_pub_topic_ip mqtt_namespace "ip-address"
 #define mqtt_pub_topic_log mqtt_namespace "log"
 #define mqtt_pub_topic_state mqtt_namespace "state"
@@ -32,15 +32,16 @@
 #define mqtt_pub_topic_gate2 mqtt_namespace "gate2/state"
 #define mqtt_sub_topic_gate1 mqtt_namespace "gate1/set"
 #define mqtt_sub_topic_gate2 mqtt_namespace "gate2/set"
+#define mqtt_sub_topic_dim1 mqtt_namespace "dim1/set"
+#define mqtt_sub_topic_dim2 mqtt_namespace "dim2/set"
 
 #define INFO_PUBLISH_INTERVAL 300000
-
 
 #define ENABLE_OTA 1
 #define ENABLE_MQTT 1
 
 #define ENABLE_GATE_1 1
-#define ENABLE_GATE_2 2
+#define ENABLE_GATE_2 1
 
 #define SETUP_GPIO4_INPUT CONTROL_PULSE_BUTTON
 #define SETUP_GPIO4_CONTROL GATE_BOTH
