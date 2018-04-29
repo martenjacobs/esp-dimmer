@@ -71,22 +71,24 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
 
   if(strcmp(topic, mqtt_sub_topic_gate1) == 0){
     set_gate(1, strcmp(payload_str, "ON")==0?1:0);
+    #if ENABLE_DIMMER
+    set_dim_level(1, get_dim1());
+    #endif
     return;
   }
   if(strcmp(topic, mqtt_sub_topic_gate2) == 0){
     set_gate(2, strcmp(payload_str, "ON")==0?1:0);
+    #if ENABLE_DIMMER
+    set_dim_level(2, get_dim2());
+    #endif
     return;
   }
   if(strcmp(topic, mqtt_sub_topic_dim1) == 0){
-    uint8_t val;
-    sscanf(payload_str, "%d", &val);
-    set_dim(1, val);
+    set_dim_level(1, payload_str);
     return;
   }
   if(strcmp(topic, mqtt_sub_topic_dim2) == 0){
-    uint8_t val;
-    sscanf(payload_str, "%d", &val);
-    set_dim(2, val);
+    set_dim_level(2, payload_str);
     return;
   }
   if(strcmp(topic, mqtt_sub_topic_state) == 0){
@@ -105,6 +107,17 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
     return;
   }
 }
+
+void set_dim_level(uint8_t gate, char* value){
+  uint8_t val;
+  sscanf(value, "%d", &val);
+  set_dim_level(gate, val);
+}
+
+void set_dim_level(uint8_t gate, uint8_t value){
+  set_dim(gate, value);
+}
+
 void mqtt_reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
