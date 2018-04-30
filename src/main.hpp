@@ -25,6 +25,7 @@ void mqtt_debug_log(String msg);
 #if ENABLE_DIMMER==1
 void set_dim_level(uint8_t gate, char* value);
 void set_dim_level(uint8_t gate, uint8_t value);
+void restore_dim_level(uint8_t gate);
 #endif
 
 void gpio_loop();

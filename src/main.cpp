@@ -33,12 +33,18 @@ void set_gate(int id, int on){
   switch(id){
     case 1:
       set_gate1(on);
+      #if ENABLE_DIMMER
+      restore_dim_level(id);
+      #endif
       #if ENABLE_MQTT
       publish_gate1();
       #endif
       break;
     case 2:
       set_gate2(on);
+      #if ENABLE_DIMMER
+      restore_dim_level(id);
+      #endif
       #if ENABLE_MQTT
       publish_gate2();
       #endif
@@ -71,16 +77,10 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
 
   if(strcmp(topic, mqtt_sub_topic_gate1) == 0){
     set_gate(1, strcmp(payload_str, "ON")==0?1:0);
-    #if ENABLE_DIMMER
-    set_dim_level(1, get_dim1());
-    #endif
     return;
   }
   if(strcmp(topic, mqtt_sub_topic_gate2) == 0){
     set_gate(2, strcmp(payload_str, "ON")==0?1:0);
-    #if ENABLE_DIMMER
-    set_dim_level(2, get_dim2());
-    #endif
     return;
   }
   if(strcmp(topic, mqtt_sub_topic_dim1) == 0){
@@ -106,6 +106,10 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
     write_eeprom();
     return;
   }
+}
+
+void restore_dim_level(uint8_t gate){
+  set_dim_level(gate, get_dim(gate));
 }
 
 void set_dim_level(uint8_t gate, char* value){
@@ -182,10 +186,10 @@ void update_gates(int gate, int action){
 }
 
 int check_pulse_button(int id, int &last, const char *topic){
-  int curr=digitalRead(4);
+  int curr=digitalRead(id);
   if(curr!=last){
     delay(10);
-    if(digitalRead(4)==curr){
+    if(digitalRead(id)==curr){
       last=curr;
       if(curr){
         #if ENABLE_MQTT
@@ -202,10 +206,10 @@ int check_pulse_button(int id, int &last, const char *topic){
   return SWITCH_NO_CHANGE;
 }
 int check_toggle_button(int id, int &last, const char *topic){
-  int curr=digitalRead(4);
+  int curr=digitalRead(id);
   if(curr!=last){
     delay(10);
-    if(digitalRead(4)==curr){
+    if(digitalRead(id)==curr){
       last=curr;
       if(curr){
         #if ENABLE_MQTT

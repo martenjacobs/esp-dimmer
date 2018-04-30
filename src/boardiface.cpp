@@ -314,6 +314,15 @@ uint8_t get_dim2(){
   return dimmer.gate2_bright_tbl;
 }
 
+uint8_t get_dim(uint8_t gate){
+  if (gate == 1){
+    return dimmer.gate1_bright_tbl;
+  }
+  else{
+    return dimmer.gate2_bright_tbl;
+  }
+}
+
 //************************************************************************************
 void get_values(void) {
   //Serial.print("Get modul values\n");
