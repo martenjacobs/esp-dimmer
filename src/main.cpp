@@ -41,7 +41,7 @@ void set_gate(int id, int on){
       restore_dim_level(id);
       #endif
       #if ENABLE_MQTT
-      publish_gate1();
+      publish_gates();
       #endif
       break;
     case 2:
@@ -50,10 +50,11 @@ void set_gate(int id, int on){
       restore_dim_level(id);
       #endif
       #if ENABLE_MQTT
-      publish_gate2();
+      publish_gates();
       #endif
       break;
   }
+  write_eeprom();
 }
 void set_dim(int id, uint8_t value){
   switch(id){
@@ -70,6 +71,7 @@ void set_dim(int id, uint8_t value){
       #endif
       break;
   }
+  write_eeprom();
 }
 
 void mqtt_callback(char* topic, byte* payload, unsigned int length){
@@ -78,6 +80,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
 		payload_str[i] = (char) payload[i];
 	}
   payload_str[length]=0;
+  mqtt_debug_log("[Topic] "+String(topic)+" [Payload] "+String(payload_str));
 
   if(strcmp(topic, mqtt_sub_topic_gate1) == 0){
     set_gate(1, strcmp(payload_str, "ON")==0?1:0);
@@ -110,6 +113,12 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
     write_eeprom();
     return;
   }
+  if(strcmp(topic, mqtt_sub_topic_chlock) == 0){
+    set_channel_lock(strcmp(payload_str, "ON")==0?1:0);
+    publish_status();
+    return;
+  }
+
 }
 int mqtt_publish (const char* topic, const char* payload, bool retained){
 #if ENABLE_MQTT
@@ -157,6 +166,7 @@ void mqtt_reconnect() {
         client.subscribe(mqtt_sub_topic_state);
         client.subscribe(mqtt_sub_topic_eeprom_read);
         client.subscribe(mqtt_sub_topic_eeprom_write);
+        client.subscribe(mqtt_sub_topic_chlock);
         client.setCallback(mqtt_callback);
         //Serial.println("connected");
       } else {

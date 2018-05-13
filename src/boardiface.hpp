@@ -70,12 +70,12 @@ int get_gate1();
 int get_gate2();
 void set_dimm1_tbl(uint8_t value);
 void set_dimm2_tbl(uint8_t value);
+void set_channel_lock(uint8_t value);
 uint8_t get_dim(uint8_t gate);
 uint8_t get_dim1();
 uint8_t get_dim2();
 void get_values(void);
 
-void set_channel_lock(bool on);
 void write_eeprom();
 void read_eeprom();
 
