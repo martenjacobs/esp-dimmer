@@ -3,7 +3,7 @@
 This is a first step towards creating an open source firmware for the ESP8266-based dimmer modules sold by [ex-store.de](https://ex-store.de/2-Kanal-RS232-WiFi-Dimmer-Modul-V4-fuer-Unterputzmontage-230V-3A).
 
 ## NOTE:
-An MQTT broker, like [Mosquitto](https://mosquitto.org/download/) should be running.
+An MQTT broker (like [Mosquitto](https://mosquitto.org/download/)) should be running.
 
 ## Usage:
 Edit src/config.hpp to match your WIFI, MQTT settings.
