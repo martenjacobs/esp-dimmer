@@ -1,4 +1,5 @@
 
+#include <config.hpp>
 #include <boardiface.hpp>
 
 //TODO: clean up this mess
