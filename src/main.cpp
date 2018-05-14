@@ -364,8 +364,18 @@ void setup() {
   }
   localIP=WiFi.localIP();
   mqtt_setup();
+  #ifdef SETUP_GPIO4_INPUT
   pinMode(4, INPUT_PULLUP);
+  #endif
+  #ifdef SETUP_GPIO5_INPUT
   pinMode(5, INPUT_PULLUP);
+  #endif
+  #ifdef SETUP_GPIO12_INPUT
+  pinMode(12, INPUT_PULLUP);
+  #endif
+  #ifdef SETUP_GPIO14_INPUT
+  pinMode(14, INPUT_PULLUP);
+  #endif
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
   board_setup();
