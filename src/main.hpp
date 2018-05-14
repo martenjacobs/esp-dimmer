@@ -11,18 +11,18 @@ void publish_gate1();
 void publish_gate2();
 #endif
 
-void publish_gates();
+inline void publish_gates();
 
 void set_gate(int id, int on);
 
-#if ENABLE_MQTT==1
+#if ENABLE_MQTT
 void mqtt_callback(char* topic, byte* payload, unsigned int length);
 void mqtt_reconnect();
-void mqtt_debug_log(String msg);
-#endif
+inline void mqtt_debug_log(String msg);
 int mqtt_publish (const char* topic, const char* payload, bool retained);
+#endif
 
-#if ENABLE_DIMMER==1
+#if ENABLE_DIMMER
 void set_dim_level(uint8_t gate, char* value);
 void set_dim_level(uint8_t gate, uint8_t value);
 void restore_dim_level(uint8_t gate);
