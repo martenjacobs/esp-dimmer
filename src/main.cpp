@@ -94,6 +94,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
     set_gate(2, strcmp(payload_str, "ON")==0?1:0);
     return;
   }
+  #if ENABLE_DIMMER
   if(strcmp(topic, mqtt_sub_topic_dim1) == 0){
     set_dim_level(1, payload_str);
     return;
@@ -102,6 +103,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
     set_dim_level(2, payload_str);
     return;
   }
+  #endif
   if(strcmp(topic, mqtt_sub_topic_state) == 0){
     get_values();
     publish_status();
@@ -136,6 +138,7 @@ else{
 return false;
 }
 
+#if ENABLE_DIMMER
 void restore_dim_level(uint8_t gate){
   set_dim_level(gate, get_dim(gate));
 }
@@ -145,6 +148,7 @@ void set_dim_level(uint8_t gate, char* value){
   sscanf(value, "%d", &val);
   set_dim_level(gate, val);
 }
+#endif
 
 void set_dim_level(uint8_t gate, uint8_t value){
   set_dim(gate, value);
