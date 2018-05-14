@@ -394,7 +394,7 @@ void publish_status(){
   mqtt_publish(mqtt_pub_topic_state "/gate2_dimm", itoa(d.gate2_dimm, cstr, 10), false);
   mqtt_publish(mqtt_pub_topic_state "/gate2_impuls_start", itoa(d.gate2_impuls_start, cstr, 10), false);
   mqtt_publish(mqtt_pub_topic_state "/gate2_impuls_len", itoa(d.gate2_impuls_len, cstr, 10), false);
-  mqtt_publish(mqtt_pub_topic_state "/gate_lock", itoa(d.gate_lock, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/channel_lock", itoa(d.gate_lock, cstr, 10), false);
 }
 
 void mqtt_loop(){
@@ -434,14 +434,14 @@ void setup() {
   #ifdef SETUP_GPIO14_INPUT
   pinMode(14, INPUT_PULLUP);
   #endif
-  #if CHANNEL_LOCK
-  set_channel_lock(true);
-  #else
-  set_channel_lock(false);
-  #endif
+
+  // First make sure we can communicate with the board
+  board_setup();
+
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
-  board_setup();
+  set_channel_lock(CHANNEL_LOCK);
+
   get_values();
   last_pub=millis();
 }
