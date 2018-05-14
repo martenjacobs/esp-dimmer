@@ -28,6 +28,7 @@ void set_dim_level(uint8_t gate, uint8_t value);
 void restore_dim_level(uint8_t gate);
 #endif
 
+void set_enabled(bool enabled);
 void gpio_loop();
 void publish_status();
 

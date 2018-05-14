@@ -408,8 +408,12 @@ void mqtt_loop(){
 void mqtt_setup(){
   client.setServer(mqtt_server, mqtt_port);
 }
-
+void set_enabled(bool enabled){
+  pinMode(13, OUTPUT);
+  digitalWrite(13, enabled?LOW:HIGH);
+}
 void setup() {
+  set_enabled(false);
   //Serial.begin(115200);
   if(!wifi_setup()){
     //TODO: Something if OTA is not enabled
@@ -435,11 +439,9 @@ void setup() {
   pinMode(14, INPUT_PULLUP);
   #endif
 
-  // First make sure we can communicate with the board
   board_setup();
 
-  pinMode(13, OUTPUT);
-  digitalWrite(13, LOW);
+  set_enabled(true);
   set_channel_lock(CHANNEL_LOCK);
 
   get_values();

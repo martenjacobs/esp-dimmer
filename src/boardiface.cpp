@@ -323,9 +323,7 @@ uint8_t get_dim(uint8_t gate){
     return dimmer.gate2_bright_tbl;
   }
 }
-
-//************************************************************************************
-void get_values(void) {
+void request_values(void){
   //Serial.print("Get modul values\n");
 
   char value[3];
@@ -333,6 +331,11 @@ void get_values(void) {
   value[1] = '\0';
 
   send_seriell(value);
+}
+void get_values(void) {
+  request_values();
+  delay(25);
+  recv();
 }
 #if ENABLE_GATE_1
 int get_gate1(){
@@ -441,7 +444,7 @@ void board_loop() { // run over and over
     BasicMillis = currentMillis;
     //flop=1-flop;
     //set_gate1(flop);
-    get_values();
+    request_values();
   }
 
 }
