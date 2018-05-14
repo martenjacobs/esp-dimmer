@@ -64,16 +64,27 @@ Dimmer get_state();
 
 void board_loop();
 void board_setup();
+
+#if ENABLE_GATE_1
 int set_gate1(int val);
-int set_gate2(int val);
 int get_gate1();
-int get_gate2();
+#if ENABLE_DIMMER
 void set_dimm1_tbl(uint8_t value);
+uint8_t get_dim1();
+#endif
+#endif
+
+#if ENABLE_GATE_2
+int set_gate2(int val);
+int get_gate2();
+#if ENABLE_DIMMER
 void set_dimm2_tbl(uint8_t value);
+uint8_t get_dim2();
+#endif
+#endif
+
 void set_channel_lock(uint8_t value);
 uint8_t get_dim(uint8_t gate);
-uint8_t get_dim1();
-uint8_t get_dim2();
 void get_values(void);
 
 void write_eeprom();

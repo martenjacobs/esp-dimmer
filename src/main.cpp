@@ -17,25 +17,33 @@ unsigned long now = 0;
 unsigned long now_mqtt = 0;
 unsigned long lastmqtt_retry = -1;
 
-
+#if ENABLE_GATE_1
 void publish_gate1(){
   mqtt_publish(mqtt_pub_topic_gate1, get_gate1()==1?"ON":"OFF", true);
   char cstr[16];
   mqtt_publish(mqtt_pub_topic_dim1, itoa(get_dim1(), cstr, 10), true);
 }
+#endif
+#if ENABLE_GATE_2
 void publish_gate2(){
   mqtt_publish(mqtt_pub_topic_gate2, get_gate2()==1?"ON":"OFF", true);
   char cstr[16];
   mqtt_publish(mqtt_pub_topic_dim2, itoa(get_dim2(), cstr, 10), true);
 }
+#endif
 void publish_gates(){
+  #if ENABLE_GATE_1
   publish_gate1();
+  #endif
+  #if ENABLE_GATE_2
   publish_gate2();
+  #endif
 }
 
 void set_gate(int id, int on){
   switch(id){
-    case 1:
+    #if ENABLE_GATE_1
+    case GATE_1:
       set_gate1(on);
       #if ENABLE_DIMMER
       restore_dim_level(id);
@@ -44,7 +52,9 @@ void set_gate(int id, int on){
       publish_gates();
       #endif
       break;
-    case 2:
+    #endif
+    #if ENABLE_GATE_2
+    case GATE_2:
       set_gate2(on);
       #if ENABLE_DIMMER
       restore_dim_level(id);
@@ -53,6 +63,7 @@ void set_gate(int id, int on){
       publish_gates();
       #endif
       break;
+    #endif
   }
   #if PERSIST_STATE
   write_eeprom();
@@ -60,18 +71,22 @@ void set_gate(int id, int on){
 }
 void set_dim(int id, uint8_t value){
   switch(id){
-    case 1:
+    #if ENABLE_GATE_1
+    case GATE_1:
       set_dimm1_tbl(value);
       #if ENABLE_MQTT
       publish_gate1();
       #endif
       break;
-    case 2:
+    #endif
+    #if ENABLE_GATE_2
+    case GATE_2:
       set_dimm2_tbl(value);
       #if ENABLE_MQTT
       publish_gate2();
       #endif
       break;
+    #endif
   }
   #if PERSIST_STATE
   write_eeprom();
@@ -202,22 +217,38 @@ void mqtt_debug_log(String msg){
 
 int get_gate(int gate){
   switch(gate){
+    #if ENABLE_GATE_1
     case GATE_1:
       return get_gate1();
+    #endif
+    #if ENABLE_GATE_1
     case GATE_2:
       return get_gate2();
+    #endif
   }
 }
 
 void update_gates(int gate, int action){
   if(gate==GATE_BOTH){
     if(action==SWITCH_TOGGLE){
-      int sw = (get_gate1()==1 || get_gate2()==1) ? 0 : 1;
-      set_gate(1, sw);
-      set_gate(2, sw);
+      int sw = (
+        #if ENABLE_GATE_1
+        get_gate1()==1
+        #else
+        false
+        #endif
+        ||
+        #if ENABLE_GATE_2
+        get_gate2()==1
+        #else
+        false
+        #endif
+      ) ? 0 : 1;
+      set_gate(GATE_1, sw);
+      set_gate(GATE_2, sw);
     }else{
-      set_gate(1, action);
-      set_gate(2, action);
+      set_gate(GATE_1, action);
+      set_gate(GATE_2, action);
     }
   }else{
     if(action==SWITCH_TOGGLE){

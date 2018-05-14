@@ -333,6 +333,7 @@ void get_values(void) {
 
   send_seriell(value);
 }
+#if ENABLE_GATE_1
 int get_gate1(){
   return dimmer.gate1_on;
 }
@@ -360,6 +361,8 @@ int set_gate1(int value) {
   send_seriell(sendVal);
   return 1;
 }
+#endif
+#if ENABLE_GATE_2
 int get_gate2(){
   return dimmer.gate2_on;
 }
@@ -387,7 +390,7 @@ int set_gate2(int value) {
   send_seriell(sendVal);
   return 1;
 }
-
+#endif
 void set_channel_lock(uint8_t value){
   char sendVal[3];
   sendVal[0] = CH_LOCK;
