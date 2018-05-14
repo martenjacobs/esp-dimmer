@@ -54,7 +54,9 @@ void set_gate(int id, int on){
       #endif
       break;
   }
+  #if PERSIST_STATE
   write_eeprom();
+  #endif
 }
 void set_dim(int id, uint8_t value){
   switch(id){
@@ -71,7 +73,9 @@ void set_dim(int id, uint8_t value){
       #endif
       break;
   }
+  #if PERSIST_STATE
   write_eeprom();
+  #endif
 }
 
 void mqtt_callback(char* topic, byte* payload, unsigned int length){
