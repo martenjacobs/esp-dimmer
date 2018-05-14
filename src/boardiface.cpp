@@ -314,6 +314,15 @@ uint8_t get_dim2(){
   return dimmer.gate2_bright_tbl;
 }
 
+uint8_t get_dim(uint8_t gate){
+  if (gate == 1){
+    return dimmer.gate1_bright_tbl;
+  }
+  else{
+    return dimmer.gate2_bright_tbl;
+  }
+}
+
 //************************************************************************************
 void get_values(void) {
   //Serial.print("Get modul values\n");
@@ -344,7 +353,7 @@ int set_gate1(int value) {
   else {
     sendVal[0] = GATE_1_ON;
     dimmer.gate1_on = 1;
-    if (dimmer.gate_lock) { dimmer.gate2_dimm = 0; dimmer.gate2_on = 0; }
+    if (dimmer.gate_lock) { dimmer.gate2_dimm = 0; set_gate2(0); }
   }
   sendVal[1] = '\0';
 
@@ -371,7 +380,7 @@ int set_gate2(int value) {
   else {
     sendVal[0] = GATE_2_ON;
     dimmer.gate2_on = 1;
-    if (dimmer.gate_lock) { dimmer.gate1_dimm = 0; dimmer.gate1_on = 0; }
+    if (dimmer.gate_lock) { dimmer.gate1_dimm = 0; set_gate1(0); }
   }
   sendVal[1] = '\0';
 
@@ -379,8 +388,13 @@ int set_gate2(int value) {
   return 1;
 }
 
-void set_channel_lock(bool on){
-  //TODO: implement, but how?
+void set_channel_lock(uint8_t value){
+  char sendVal[3];
+  sendVal[0] = CH_LOCK;
+  sendVal[1] = value;
+  sendVal[2] = '\0';
+  send_seriell(sendVal);
+  dimmer.gate_lock = value;
 }
 void write_eeprom(){
   //TODO: test

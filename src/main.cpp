@@ -9,20 +9,24 @@
 //TODO: clean up this mess
 
 IPAddress localIP;
-
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+unsigned long last_pub = 0;
+unsigned long now = 0;
+unsigned long now_mqtt = 0;
+unsigned long lastmqtt_retry = -1;
+
 
 void publish_gate1(){
-  client.publish(mqtt_pub_topic_gate1, get_gate1()==1?"ON":"OFF", true);
+  mqtt_publish(mqtt_pub_topic_gate1, get_gate1()==1?"ON":"OFF", true);
   char cstr[16];
-  client.publish(mqtt_pub_topic_dim1, itoa(get_dim1(), cstr, 10), true);
+  mqtt_publish(mqtt_pub_topic_dim1, itoa(get_dim1(), cstr, 10), true);
 }
 void publish_gate2(){
-  client.publish(mqtt_pub_topic_gate2, get_gate2()==1?"ON":"OFF", true);
+  mqtt_publish(mqtt_pub_topic_gate2, get_gate2()==1?"ON":"OFF", true);
   char cstr[16];
-  client.publish(mqtt_pub_topic_dim2, itoa(get_dim2(), cstr, 10), true);
+  mqtt_publish(mqtt_pub_topic_dim2, itoa(get_dim2(), cstr, 10), true);
 }
 void publish_gates(){
   publish_gate1();
@@ -33,17 +37,24 @@ void set_gate(int id, int on){
   switch(id){
     case 1:
       set_gate1(on);
+      #if ENABLE_DIMMER
+      restore_dim_level(id);
+      #endif
       #if ENABLE_MQTT
-      publish_gate1();
+      publish_gates();
       #endif
       break;
     case 2:
       set_gate2(on);
+      #if ENABLE_DIMMER
+      restore_dim_level(id);
+      #endif
       #if ENABLE_MQTT
-      publish_gate2();
+      publish_gates();
       #endif
       break;
   }
+  write_eeprom();
 }
 void set_dim(int id, uint8_t value){
   switch(id){
@@ -60,6 +71,7 @@ void set_dim(int id, uint8_t value){
       #endif
       break;
   }
+  write_eeprom();
 }
 
 void mqtt_callback(char* topic, byte* payload, unsigned int length){
@@ -68,6 +80,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
 		payload_str[i] = (char) payload[i];
 	}
   payload_str[length]=0;
+  mqtt_debug_log("[Topic] "+String(topic)+" [Payload] "+String(payload_str));
 
   if(strcmp(topic, mqtt_sub_topic_gate1) == 0){
     set_gate(1, strcmp(payload_str, "ON")==0?1:0);
@@ -78,15 +91,11 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
     return;
   }
   if(strcmp(topic, mqtt_sub_topic_dim1) == 0){
-    uint8_t val;
-    sscanf(payload_str, "%d", &val);
-    set_dim(1, val);
+    set_dim_level(1, payload_str);
     return;
   }
   if(strcmp(topic, mqtt_sub_topic_dim2) == 0){
-    uint8_t val;
-    sscanf(payload_str, "%d", &val);
-    set_dim(2, val);
+    set_dim_level(2, payload_str);
     return;
   }
   if(strcmp(topic, mqtt_sub_topic_state) == 0){
@@ -104,7 +113,39 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
     write_eeprom();
     return;
   }
+  if(strcmp(topic, mqtt_sub_topic_chlock) == 0){
+    set_channel_lock(strcmp(payload_str, "ON")==0?1:0);
+    publish_status();
+    return;
+  }
+
 }
+int mqtt_publish (const char* topic, const char* payload, bool retained){
+#if ENABLE_MQTT
+if (client.connected()){
+  return client.publish(topic,payload,retained);
+  }
+else{
+  return false;
+}
+#endif
+return false;
+}
+
+void restore_dim_level(uint8_t gate){
+  set_dim_level(gate, get_dim(gate));
+}
+
+void set_dim_level(uint8_t gate, char* value){
+  uint8_t val;
+  sscanf(value, "%d", &val);
+  set_dim_level(gate, val);
+}
+
+void set_dim_level(uint8_t gate, uint8_t value){
+  set_dim(gate, value);
+}
+
 void mqtt_reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
@@ -112,33 +153,44 @@ void mqtt_reconnect() {
     // Attempt to connect
     // If you do not want to use a username and password, change next line to
     // if (client.connect("ESP8266Client")) {
-    if (client.connect(mqtt_client_id, mqtt_user, mqtt_password,
-                       mqtt_pub_topic_online, 0, true, "no")) {
-      client.publish(mqtt_pub_topic_online, "yes", true);
-      client.subscribe(mqtt_sub_topic_gate1);
-      client.subscribe(mqtt_sub_topic_gate2);
-      client.subscribe(mqtt_sub_topic_dim1);
-      client.subscribe(mqtt_sub_topic_dim2);
-      client.subscribe(mqtt_sub_topic_state);
-      client.subscribe(mqtt_sub_topic_eeprom_read);
-      client.subscribe(mqtt_sub_topic_eeprom_write);
-      client.setCallback(mqtt_callback);
-      //Serial.println("connected");
-    } else {
-      //Serial.print("failed, rc=");
-      //Serial.print(client.state());
-      //Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      delay(5000);
+    now_mqtt = millis();
+    if (now_mqtt - lastmqtt_retry > 5000 or lastmqtt_retry == -1){
+      lastmqtt_retry = millis();
+      if (client.connect(mqtt_client_id, mqtt_user, mqtt_password,
+                         mqtt_pub_topic_online, 0, true, "no")) {
+        mqtt_publish(mqtt_pub_topic_online, "yes", true);
+        client.subscribe(mqtt_sub_topic_gate1);
+        client.subscribe(mqtt_sub_topic_gate2);
+        client.subscribe(mqtt_sub_topic_dim1);
+        client.subscribe(mqtt_sub_topic_dim2);
+        client.subscribe(mqtt_sub_topic_state);
+        client.subscribe(mqtt_sub_topic_eeprom_read);
+        client.subscribe(mqtt_sub_topic_eeprom_write);
+        client.subscribe(mqtt_sub_topic_chlock);
+        client.setCallback(mqtt_callback);
+        //Serial.println("connected");
+      } else {
+        //Serial.print("failed, rc=");
+        //Serial.print(client.state());
+        //Serial.println(" try again in 5 seconds");
+        // Wait 5 seconds before retrying
+        // delay(5000);
+      }
     }
+    else{
+      // If not connected to mqtt broker, handle gpio and OTA
+      gpio_loop();
+      OTA_LOOP_IF_ENABLED;
+    }
+    delay(50);
   }
 }
+
+
 void mqtt_debug_log(String msg){
-  client.publish(mqtt_pub_topic_log, msg.c_str(), false);
+  mqtt_publish(mqtt_pub_topic_log, msg.c_str(), false);
 }
 
-unsigned long last_pub = 0;
-unsigned long now = 0;
 
 int get_gate(int gate){
   switch(gate){
@@ -169,19 +221,15 @@ void update_gates(int gate, int action){
 }
 
 int check_pulse_button(int id, int &last, const char *topic){
-  int curr=digitalRead(4);
+  int curr=digitalRead(id);
   if(curr!=last){
     delay(10);
-    if(digitalRead(4)==curr){
+    if(digitalRead(id)==curr){
       last=curr;
       if(curr){
-        #if ENABLE_MQTT
-        client.publish(topic, "HIGH", false);
-        #endif
+        mqtt_publish(topic, "HIGH", false);
       }else{
-        #if ENABLE_MQTT
-        client.publish(topic, "LOW", false);
-        #endif
+        mqtt_publish(topic, "LOW", false);
         return SWITCH_TOGGLE;
       }
     }
@@ -189,19 +237,15 @@ int check_pulse_button(int id, int &last, const char *topic){
   return SWITCH_NO_CHANGE;
 }
 int check_toggle_button(int id, int &last, const char *topic){
-  int curr=digitalRead(4);
+  int curr=digitalRead(id);
   if(curr!=last){
     delay(10);
-    if(digitalRead(4)==curr){
+    if(digitalRead(id)==curr){
       last=curr;
       if(curr){
-        #if ENABLE_MQTT
-        client.publish(topic, "HIGH", false);
-        #endif
+        mqtt_publish(topic, "HIGH", false);
       }else{
-        #if ENABLE_MQTT
-        client.publish(topic, "LOW", false);
-        #endif
+        mqtt_publish(topic, "LOW", false);
       }
       return SWITCH_TOGGLE;
     }
@@ -272,27 +316,27 @@ void gpio_loop(){
 
 void publish_status(){
 
-  client.publish(mqtt_pub_topic_ip, localIP.toString().c_str(), true);
+  mqtt_publish(mqtt_pub_topic_ip, localIP.toString().c_str(), true);
   publish_gates();
 
   Dimmer d = get_state();
   char cstr[16];
 
-  client.publish(mqtt_pub_topic_state "/version_major", itoa(d.version_major, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/version_minor", itoa(d.version_minor, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/gate1_on", itoa(d.gate1_on, cstr, 10), false);
-  //client.publish(mqtt_pub_topic_state "/gate1_bright_proz", itoa(d.gate1_bright_proz, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/gate1_bright_tbl", itoa(d.gate1_bright_tbl, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/gate1_dimm", itoa(d.gate1_dimm, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/gate1_impuls_start", itoa(d.gate1_impuls_start, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/gate1_impuls_len", itoa(d.gate1_impuls_len, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/gate2_on", itoa(d.gate2_on, cstr, 10), false);
-  //client.publish(mqtt_pub_topic_state "/gate2_bright_proz", itoa(d.gate2_bright_proz, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/gate2_bright_tbl", itoa(d.gate2_bright_tbl, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/gate2_dimm", itoa(d.gate2_dimm, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/gate2_impuls_start", itoa(d.gate2_impuls_start, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/gate2_impuls_len", itoa(d.gate2_impuls_len, cstr, 10), false);
-  client.publish(mqtt_pub_topic_state "/gate_lock", itoa(d.gate_lock, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/version_major", itoa(d.version_major, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/version_minor", itoa(d.version_minor, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/gate1_on", itoa(d.gate1_on, cstr, 10), false);
+  //mqtt_publish(mqtt_pub_topic_state "/gate1_bright_proz", itoa(d.gate1_bright_proz, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/gate1_bright_tbl", itoa(d.gate1_bright_tbl, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/gate1_dimm", itoa(d.gate1_dimm, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/gate1_impuls_start", itoa(d.gate1_impuls_start, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/gate1_impuls_len", itoa(d.gate1_impuls_len, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/gate2_on", itoa(d.gate2_on, cstr, 10), false);
+  //mqtt_publish(mqtt_pub_topic_state "/gate2_bright_proz", itoa(d.gate2_bright_proz, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/gate2_bright_tbl", itoa(d.gate2_bright_tbl, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/gate2_dimm", itoa(d.gate2_dimm, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/gate2_impuls_start", itoa(d.gate2_impuls_start, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/gate2_impuls_len", itoa(d.gate2_impuls_len, cstr, 10), false);
+  mqtt_publish(mqtt_pub_topic_state "/gate_lock", itoa(d.gate_lock, cstr, 10), false);
 }
 
 void mqtt_loop(){

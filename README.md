@@ -23,7 +23,7 @@ You should also set a name for your dimmer:
   state_topic: "dimmer-1/gate1/state"
   availability_topic: "dimmer-1/online"
   brightness_command_topic: "dimmer-1/dim1/set"
-  brightness_state_topic: "dimmer-1/dim1/set"
+  brightness_state_topic: "dimmer-1/dim1/state"
   brightness_scale: 255
   payload_on: "ON"
   payload_off: "OFF"

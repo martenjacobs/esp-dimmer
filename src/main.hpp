@@ -4,7 +4,6 @@
 #include <config.hpp>
 #include <Arduino.h>
 
-
 #if ENABLE_GATE_1==1
 void publish_gate1();
 #endif
@@ -21,7 +20,13 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length);
 void mqtt_reconnect();
 void mqtt_debug_log(String msg);
 #endif
+int mqtt_publish (const char* topic, const char* payload, bool retained);
 
+#if ENABLE_DIMMER==1
+void set_dim_level(uint8_t gate, char* value);
+void set_dim_level(uint8_t gate, uint8_t value);
+void restore_dim_level(uint8_t gate);
+#endif
 
 void gpio_loop();
 void publish_status();

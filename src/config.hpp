@@ -37,6 +37,7 @@
 #define mqtt_pub_topic_dim2 mqtt_namespace "dim2/state"
 #define mqtt_sub_topic_dim1 mqtt_namespace "dim1/set"
 #define mqtt_sub_topic_dim2 mqtt_namespace "dim2/set"
+#define mqtt_sub_topic_chlock mqtt_namespace "chlock/set"
 #define mqtt_sub_topic_eeprom_read mqtt_namespace "eeprom/read"
 #define mqtt_sub_topic_eeprom_write mqtt_namespace "eeprom/write"
 
@@ -48,10 +49,14 @@
 #define ENABLE_GATE_1 1
 #define ENABLE_GATE_2 1
 
-#define SETUP_GPIO4_INPUT CONTROL_PULSE_BUTTON
-#define SETUP_GPIO4_CONTROL GATE_BOTH
-#define SETUP_GPIO5_INPUT CONTROL_PULSE_BUTTON
-//#define SETUP_GPIO5_CONTROL GATE_BOTH
+#define ENABLE_DIMMER 1
+
+#define CHANNEL_LOCK 0
+
+#define SETUP_GPIO4_INPUT CONTROL_TOGGLE_BUTTON
+#define SETUP_GPIO4_CONTROL GATE_1
+#define SETUP_GPIO5_INPUT CONTROL_TOGGLE_BUTTON
+#define SETUP_GPIO5_CONTROL GATE_2
 //#define SETUP_GPI12_INPUT CONTROL_PULSE_BUTTON
 //#define SETUP_GPI12_CONTROL GATE_BOTH
 //#define SETUP_GPI14_INPUT CONTROL_PULSE_BUTTON
